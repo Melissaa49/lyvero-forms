@@ -1,0 +1,31 @@
+{
+  // Configuration TypeScript pour ton deck Nuxt 3
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    // Vérifications allégées pour les dépendances externes
+    "skipLibCheck": true,
+
+    // Permet de reconnaître les modules Nuxt et Vue
+    "types": ["@types/node", "@nuxt/schema", "vue"],
+
+    // Résolution des chemins d'import
+    "baseUrl": ".",
+    "paths": {
+      "#app": [".nuxt/types/app"],
+      "#imports": [".nuxt/types/imports"],
+      "#build": [".nuxt/types/build"]
+    },
+
+    // (optionnel mais utile) autorise JS dans le projet
+    "allowJs": true,
+
+    // Active la complétion et l'inférence des types Vue
+    "strict": true
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.vue",
+    "nuxt.config.ts",
+    ".nuxt/**/*.ts"
+  ]
+}
