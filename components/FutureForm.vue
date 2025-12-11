@@ -1,16 +1,13 @@
-<!-- components/FutureForm.vue -->
 <template>
   <div class="ff-wrap">
-    <!-- ============================
-          INTRO SCREEN
-    ============================ -->
+    
+    <!-- ❇️ INTRO -->
     <div v-if="step === 0" class="ff-intro">
       <div class="ff-intro-globe-wrap">
         <DeckGlobe class="ff-intro-globe" />
       </div>
 
       <h1 class="ff-intro-title">Bienvenue dans la communauté Lyvero</h1>
-
       <p class="ff-intro-sub">
         Ici, les réseaux ne volent pas votre attention.<br />
         Ils élèvent vos connaissances.
@@ -21,9 +18,7 @@
       </button>
     </div>
 
-    <!-- ============================
-          FORMULAIRE
-    ============================ -->
+    <!-- ❇️ FORMULAIRE -->
     <div v-else class="ff-card">
       <header class="ff-head">
         <span class="ff-pill">Bêta privée Lyvero</span>
@@ -39,397 +34,268 @@
 
       <transition name="ff-slidefade" mode="out-in">
         <div :key="step" class="ff-step">
-          <!-- ========== STEP 1 ========== -->
+
+          <!-- 1 — PAYS -->
           <div v-if="step === 1">
             <h2>Dans quel pays vivez-vous ?</h2>
-            <input
-              v-model.trim="country"
-              class="ff-input"
-              placeholder="France, Belgique…"
-            />
-            <button class="ff-btn-primary" :disabled="!country" @click="next">
-              Continuer
-            </button>
+            <input v-model.trim="country" class="ff-input" placeholder="France, Belgique…" />
+            <button class="ff-btn-primary" :disabled="!country" @click="next">Continuer</button>
           </div>
 
-          <!-- ========== STEP 2 ========== -->
+          <!-- 2 — LANGUE -->
           <div v-else-if="step === 2">
             <h2>Quelle est votre langue maternelle ?</h2>
-            <input
-              v-model.trim="language"
-              class="ff-input"
-              placeholder="Français, Anglais…"
-            />
-            <button class="ff-btn-primary" :disabled="!language" @click="next">
-              Continuer
-            </button>
+            <input v-model.trim="language" class="ff-input" placeholder="Français, Anglais…" />
+            <button class="ff-btn-primary" :disabled="!language" @click="next">Continuer</button>
           </div>
 
-          <!-- ========== STEP 3 ========== -->
+          <!-- 3 — CRÉATEURS ÉTRANGERS -->
           <div v-else-if="step === 3">
             <h2>Regardez-vous des créateurs étrangers ?</h2>
 
             <div class="ff-choices ff-choices--inline">
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': foreignCreators === 'oui' }"
-                @click="selectAndNext('foreignCreators','oui')"
-              >
+              <button class="ff-choice" :class="{ 'ff-choice--active': foreignCreators === 'oui' }"
+                      @click="selectOnly('foreignCreators','oui')">
                 Oui, souvent
               </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': foreignCreators === 'rarement' }"
-                @click="selectAndNext('foreignCreators','rarement')"
-              >
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': foreignCreators === 'rarement' }"
+                      @click="selectOnly('foreignCreators','rarement')">
                 Parfois / rarement
               </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': foreignCreators === 'non' }"
-                @click="selectAndNext('foreignCreators','non')"
-              >
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': foreignCreators === 'non' }"
+                      @click="selectOnly('foreignCreators','non')">
                 Pratiquement jamais
               </button>
             </div>
+
+            <button class="ff-btn-primary" :disabled="!foreignCreators" @click="nextAuto">Continuer</button>
           </div>
 
-          <!-- ========== STEP 4 : Pourquoi rarement / non ? ========== -->
-          <div
-            v-else-if="step === 4 && (foreignCreators === 'rarement' || foreignCreators === 'non')"
-          >
+          <!-- 4 — SI rarement / non -->
+          <div v-else-if="step === 4 && (foreignCreators === 'rarement' || foreignCreators === 'non')">
             <h2>Qu’est-ce qui vous freine ?</h2>
-            <p class="ff-hint">
-              Choisissez la raison qui vous ressemble le plus, puis complétez si besoin.
-            </p>
+            <p class="ff-hint">Choisissez la raison qui vous ressemble le plus.</p>
 
             <div class="ff-choices">
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': reasonForeign === 'Je ne comprends pas la langue' }"
-                @click="setReasonForeign('Je ne comprends pas la langue')"
-              >
+              <button class="ff-choice"
+                      :class="{ 'ff-choice--active': reasonForeign === 'Je ne comprends pas la langue' }"
+                      @click="selectOnly('reasonForeign','Je ne comprends pas la langue')">
                 Je ne comprends pas la langue
               </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': reasonForeign === 'Trop difficile à suivre' }"
-                @click="setReasonForeign('Trop difficile à suivre')"
-              >
+
+              <button class="ff-choice"
+                      :class="{ 'ff-choice--active': reasonForeign === 'Trop difficile à suivre' }"
+                      @click="selectOnly('reasonForeign','Trop difficile à suivre')">
                 Trop difficile à suivre
               </button>
-              <button
-                class="ff-choice"
-                :class="{
-                  'ff-choice--active':
-                    reasonForeign === 'Je ne trouve pas les bons créateurs'
-                }"
-                @click="setReasonForeign('Je ne trouve pas les bons créateurs')"
-              >
+
+              <button class="ff-choice"
+                      :class="{ 'ff-choice--active': reasonForeign === 'Je ne trouve pas les bons créateurs' }"
+                      @click="selectOnly('reasonForeign','Je ne trouve pas les bons créateurs')">
                 Je ne trouve pas les bons créateurs
               </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': reasonForeign === 'Ça ne m’intéresse pas' }"
-                @click="setReasonForeign('Ça ne m’intéresse pas')"
-              >
+
+              <button class="ff-choice"
+                      :class="{ 'ff-choice--active': reasonForeign === 'Ça ne m’intéresse pas' }"
+                      @click="selectOnly('reasonForeign','Ça ne m’intéresse pas')">
                 Ça ne m’intéresse pas
               </button>
             </div>
 
-            <textarea
-              v-model.trim="reasonForeign"
-              class="ff-textarea"
-              placeholder="Vous pouvez préciser ou ajouter une autre raison (facultatif)…"
-            ></textarea>
+            <textarea v-model.trim="reasonForeign" class="ff-textarea"
+                      placeholder="Vous pouvez préciser ou ajouter une autre raison (facultatif)…"></textarea>
 
-            <button class="ff-btn-primary" @click="nextAuto">
-              Continuer
-            </button>
+            <button class="ff-btn-primary" @click="nextAuto">Continuer</button>
           </div>
 
-          <!-- ========== STEP 4bis : Si oui ========== -->
+          <!-- 4bis — SI oui -->
           <div v-else-if="step === 4 && foreignCreators === 'oui'">
             <h2>Aimeriez-vous les comprendre instantanément ?</h2>
-            <p class="ff-hint">
-              Par exemple : traductions automatiques fiables, sous-titres clairs, etc.
-            </p>
 
             <div class="ff-choices ff-choices--inline">
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': wish === 'oui' }"
-                @click="selectAndNext('wish','oui')"
-              >
+              <button class="ff-choice" :class="{ 'ff-choice--active': wish === 'oui' }"
+                      @click="selectAndNext('wish','oui')">
                 Oui, ce serait idéal
               </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': wish === 'non' }"
-                @click="selectAndNext('wish','non')"
-              >
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': wish === 'non' }"
+                      @click="selectAndNext('wish','non')">
                 Pas spécialement
               </button>
             </div>
           </div>
 
-          <!-- ========== STEP 5 : Pourquoi pas (si wish === non) ========== -->
+          <!-- 5 — Pourquoi pas -->
           <div v-else-if="step === 5 && wish === 'non'">
             <h2>Pourquoi ce n’est pas une priorité pour vous ?</h2>
+            <textarea v-model.trim="reasonWish" class="ff-textarea"
+                      placeholder="Expliquez en quelques mots…"></textarea>
 
-            <textarea
-              v-model.trim="reasonWish"
-              class="ff-textarea"
-              placeholder="Expliquez en quelques mots ce qui compte le plus pour vous sur les réseaux…"
-            ></textarea>
-
-            <button class="ff-btn-primary" @click="next">
-              Continuer
-            </button>
+            <button class="ff-btn-primary" @click="next">Continuer</button>
           </div>
 
-          <!-- ========== STEP 6 ========== -->
+          <!-- 6 — RÉSEAU PRÉFÉRÉ -->
           <div v-else-if="step === 6">
-            <h2>Quel réseau social utilisez-vous le plus aujourd’hui ?</h2>
+            <h2>Quel réseau social utilisez-vous le plus ?</h2>
 
             <div class="ff-choices">
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': favorite === 'TikTok' }"
-                @click="selectAndNext('favorite','TikTok')"
-              >
-                TikTok
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': favorite === 'Instagram' }"
-                @click="selectAndNext('favorite','Instagram')"
-              >
-                Instagram
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': favorite === 'YouTube' }"
-                @click="selectAndNext('favorite','YouTube')"
-              >
-                YouTube
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': favorite === 'Facebook' }"
-                @click="selectAndNext('favorite','Facebook')"
-              >
-                Facebook
-              </button>
+              <button class="ff-choice" :class="{ 'ff-choice--active': favorite === 'TikTok' }"
+                      @click="selectOnly('favorite','TikTok')">TikTok</button>
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': favorite === 'Instagram' }"
+                      @click="selectOnly('favorite','Instagram')">Instagram</button>
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': favorite === 'YouTube' }"
+                      @click="selectOnly('favorite','YouTube')">YouTube</button>
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': favorite === 'Facebook' }"
+                      @click="selectOnly('favorite','Facebook')">Facebook</button>
             </div>
 
-            <textarea
-              v-model.trim="favoriteWhy"
-              class="ff-textarea"
-              placeholder="Qu’est-ce que vous aimez le plus sur cette plateforme ? Et qu’est-ce qui vous agace ?"
-            ></textarea>
+            <textarea v-model.trim="favoriteWhy" class="ff-textarea"
+                      placeholder="Ce que vous aimez / ce qui vous agace…"></textarea>
 
-            <button class="ff-btn-primary" @click="next">
-              Continuer
-            </button>
+            <button class="ff-btn-primary" :disabled="!favorite" @click="next">Continuer</button>
           </div>
 
-          <!-- ========== STEP 7 ========== -->
+          <!-- 7 — PROBLÈMES DES RÉSEAUX -->
           <div v-else-if="step === 7">
-            <h2>Qu’est-ce qui manque le plus aux réseaux que vous utilisez ?</h2>
-            <p class="ff-hint">Vous pouvez sélectionner plusieurs réponses.</p>
+            <h2>Qu’est-ce qui manque le plus aux réseaux ?</h2>
+            <p class="ff-hint">Sélection multiple possible</p>
 
             <div class="ff-choices">
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': problem.includes('Moins de toxicité') }"
-                @click="toggle(problem,'Moins de toxicité')"
-              >
+              <button class="ff-choice" :class="{ 'ff-choice--active': problem.includes('Moins de toxicité') }"
+                      @click="toggle(problem, 'Moins de toxicité')">
                 Moins de toxicité / drama
               </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': problem.includes('Meilleure visibilité') }"
-                @click="toggle(problem,'Meilleure visibilité')"
-              >
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': problem.includes('Meilleure visibilité') }"
+                      @click="toggle(problem, 'Meilleure visibilité')">
                 Meilleure visibilité pour les créateurs sérieux
               </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': problem.includes('Moins de désinformation') }"
-                @click="toggle(problem,'Moins de désinformation')"
-              >
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': problem.includes('Moins de désinformation') }"
+                      @click="toggle(problem, 'Moins de désinformation')">
                 Moins de désinformation
               </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': problem.includes('Plus d’outils pour créateurs') }"
-                @click="toggle(problem,'Plus d’outils pour créateurs')"
-              >
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': problem.includes('Plus d’outils pour créateurs') }"
+                      @click="toggle(problem, 'Plus d’outils pour créateurs')">
                 Plus d’outils pour apprendre / créer
               </button>
             </div>
 
-            <textarea
-              v-model.trim="problemOther"
-              class="ff-textarea"
-              placeholder="Autre idée ou détail important pour vous ?"
-            ></textarea>
+            <textarea v-model.trim="problemOther" class="ff-textarea"
+                      placeholder="Autre idée ?"></textarea>
 
-            <button class="ff-btn-primary" @click="next">
-              Continuer
-            </button>
+            <button class="ff-btn-primary" @click="next">Continuer</button>
           </div>
 
-          <!-- ========== STEP 8 ========== -->
+          <!-- 8 — BOOSTS -->
           <div v-else-if="step === 8">
-            <h2>Avez-vous déjà payé pour booster vos contenus ?</h2>
-            <p class="ff-hint">Cochez tout ce qui s’applique.</p>
+            <h2>Avez-vous déjà utilisé des boosts ?</h2>
 
             <div class="ff-choices">
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': boost.includes('Boost TikTok') }"
-                @click="toggle(boost,'Boost TikTok')"
-              >
-                Boost TikTok
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': boost.includes('Boost Instagram') }"
-                @click="toggle(boost,'Boost Instagram')"
-              >
-                Boost Instagram
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': boost.includes('Meta Business') }"
-                @click="toggle(boost,'Meta Business')"
-              >
-                Meta Business / Ads Manager
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': boost.includes('Jamais utilisé') }"
-                @click="toggle(boost,'Jamais utilisé')"
-              >
-                Jamais utilisé de boost payant
-              </button>
+              <button class="ff-choice"
+                      :class="{ 'ff-choice--active': boost.includes('Boost TikTok') }"
+                      @click="toggle(boost,'Boost TikTok')">Boost TikTok</button>
+
+              <button class="ff-choice"
+                      :class="{ 'ff-choice--active': boost.includes('Boost Instagram') }"
+                      @click="toggle(boost,'Boost Instagram')">Boost Instagram</button>
+
+              <button class="ff-choice"
+                      :class="{ 'ff-choice--active': boost.includes('Meta Business') }"
+                      @click="toggle(boost,'Meta Business')">Meta Business</button>
+
+              <button class="ff-choice"
+                      :class="{ 'ff-choice--active': boost.includes('Jamais utilisé') }"
+                      @click="toggle(boost,'Jamais utilisé')">Jamais utilisé</button>
             </div>
 
-            <textarea
-              v-model.trim="boostWhy"
-              class="ff-textarea"
-              placeholder="Quel était votre objectif (ou pourquoi vous n’utilisez pas ces outils) ?"
-            ></textarea>
+            <textarea v-model.trim="boostWhy" class="ff-textarea"
+                      placeholder="Pourquoi / objectif…"></textarea>
 
-            <button class="ff-btn-primary" @click="next">
-              Continuer
-            </button>
+            <button class="ff-btn-primary" @click="next">Continuer</button>
           </div>
 
-          <!-- ========== STEP 9 ========== -->
+          <!-- 9 — OBJECTIF -->
           <div v-else-if="step === 9">
-            <h2>Quel est votre objectif principal sur les réseaux ?</h2>
+            <h2>Quel est votre objectif principal ?</h2>
 
             <div class="ff-choices">
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': goal === 'Apprendre' }"
-                @click="selectAndNext('goal','Apprendre')"
-              >
-                Apprendre et me former
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': goal === 'Divertissement' }"
-                @click="selectAndNext('goal','Divertissement')"
-              >
-                Me divertir / me détendre
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': goal === 'Créer du contenu' }"
-                @click="selectAndNext('goal','Créer du contenu')"
-              >
-                Créer / publier du contenu
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': goal === 'Vendre / business' }"
-                @click="selectAndNext('goal','Vendre / business')"
-              >
-                Développer mon activité / mon business
-              </button>
+              <button class="ff-choice" :class="{ 'ff-choice--active': goal === 'Apprendre' }"
+                      @click="selectOnly('goal','Apprendre')">Apprendre</button>
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': goal === 'Divertissement' }"
+                      @click="selectOnly('goal','Divertissement')">Me divertir</button>
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': goal === 'Créer du contenu' }"
+                      @click="selectOnly('goal','Créer du contenu')">Créer du contenu</button>
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': goal === 'Vendre / business' }"
+                      @click="selectOnly('goal','Vendre / business')">Vendre / business</button>
             </div>
 
-            <textarea
-              v-model.trim="selfQuote"
-              class="ff-textarea ff-textarea--small"
-              placeholder="En une phrase : à quoi ressemblerait, pour vous, un réseau social vraiment utile ?"
-            ></textarea>
+            <textarea v-model.trim="selfQuote" class="ff-textarea ff-textarea--small"
+                      placeholder="Décrivez en une phrase le réseau idéal…"></textarea>
 
-            <button class="ff-btn-primary" @click="next">
-              Continuer
-            </button>
+            <button class="ff-btn-primary" :disabled="!goal" @click="next">Continuer</button>
           </div>
 
-          <!-- ========== STEP 10 ========== -->
+          <!-- 10 — BÊTA -->
           <div v-else-if="step === 10">
             <h2>Souhaitez-vous rejoindre la bêta privée Lyvero ?</h2>
-            <p class="ff-hint">
-              Vous recevrez les accès en avant-première, avec un rôle de “pionnier”.
-            </p>
 
             <div class="ff-choices ff-choices--inline">
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': beta === 'oui' }"
-                @click="selectAndNext('beta','oui')"
-              >
-                Oui, avec plaisir
-              </button>
-              <button
-                class="ff-choice"
-                :class="{ 'ff-choice--active': beta === 'non' }"
-                @click="selectAndNext('beta','non')"
-              >
-                Pas pour le moment
-              </button>
+              <button class="ff-choice" :class="{ 'ff-choice--active': beta === 'oui' }"
+                      @click="selectOnly('beta','oui')">Oui</button>
+
+              <button class="ff-choice" :class="{ 'ff-choice--active': beta === 'non' }"
+                      @click="selectOnly('beta','non')">Non</button>
             </div>
+
+            <button class="ff-btn-primary" :disabled="!beta" @click="next">Continuer</button>
           </div>
 
-          <!-- ========== STEP 11 : Email ========== -->
+          <!-- 11 — EMAIL SI OUI -->
           <div v-else-if="step === 11 && beta === 'oui'">
             <h2>Où pouvons-nous vous écrire ?</h2>
-            <p class="ff-hint">
-              Un seul email, uniquement pour vous envoyer l’accès à la bêta et les infos utiles.
-            </p>
+
             <input
               v-model.trim="email"
               class="ff-input"
               placeholder="email@example.com"
+              autocapitalize="none"
+              autocorrect="off"
+              inputmode="email"
             />
+
             <button class="ff-btn-primary" :disabled="!isValidEmail" @click="submit">
               Valider et rejoindre la bêta
             </button>
           </div>
 
-          <!-- ========== FIN ========== -->
+          <!-- 11 — FIN SI NON -->
           <div v-else-if="step === 11 && beta === 'non'">
             <h2>Merci 🙌</h2>
             <p class="ff-end-text">
-              Votre avis nous aide à construire un réseau plus utile et plus sain.
+              Votre avis nous aide à construire un réseau meilleur.
             </p>
+
             <button class="ff-btn-primary" @click="submit">
               Terminer
             </button>
           </div>
+
         </div>
       </transition>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
@@ -450,6 +316,7 @@ const country = ref('')
 const language = ref('')
 const foreignCreators = ref('')
 const reasonForeign = ref('')
+
 const wish = ref('')
 const reasonWish = ref('')
 
@@ -478,7 +345,7 @@ function next() {
   if (step.value < totalSteps) step.value++
 }
 
-// saute la step 5 quand on est dans le scénario "rarement / non"
+// skip auto step for foreign creators
 function nextAuto() {
   if (
     step.value === 4 &&
@@ -490,22 +357,22 @@ function nextAuto() {
   next()
 }
 
+/* --- NO AUTO-NEXT SELECTOR (UX FIX) --- */
+function selectOnly(field: string, value: string) {
+  if (field === 'foreignCreators') foreignCreators.value = value
+  else if (field === 'wish') wish.value = value
+  else if (field === 'favorite') favorite.value = value
+  else if (field === 'goal') goal.value = value
+  else if (field === 'beta') beta.value = value
+}
+
+/* --- LEGACY SELECT + AUTO NEXT (KEEP ONLY WHERE NEEDED) --- */
 function selectAndNext(field: string, value: string) {
-  if (field === 'foreignCreators') {
-    foreignCreators.value = value
-  } else if (field === 'wish') {
-    wish.value = value
-    // si la personne veut comprendre instantanément → on saute la step 5
-    if (value === 'oui') {
-      if (step.value < 6) step.value = 6
-      return
-    }
-  } else if (field === 'favorite') {
-    favorite.value = value
-  } else if (field === 'goal') {
-    goal.value = value
-  } else if (field === 'beta') {
-    beta.value = value
+  selectOnly(field, value)
+
+  if (field === 'wish' && value === 'oui') {
+    if (step.value < 6) step.value = 6
+    return
   }
 
   next()
@@ -554,6 +421,7 @@ async function submit() {
   emit('complete')
 }
 </script>
+
 
 <style scoped>
 /* ========== GLOBAL WRAP ========== */
