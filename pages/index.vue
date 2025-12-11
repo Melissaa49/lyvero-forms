@@ -8,8 +8,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import FutureForm from '~/components/FutureForm.vue'
-import BetaDoor from '~/components/BetaDoor.vue'
+import FutureForm from '../components/FutureForm.vue'
+import BetaDoor from '../components/BetaDoor.vue'
 
 const door = ref<InstanceType<typeof BetaDoor> | null>(null)
 

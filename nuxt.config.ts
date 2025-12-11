@@ -27,6 +27,14 @@ export default defineNuxtConfig({
     }
   },
 
+  runtimeConfig: {
+    public: {
+      EMAILJS_PUBLIC: process.env.EMAILJS_PUBLIC,
+      EMAILJS_SERVICE: process.env.EMAILJS_SERVICE,
+      EMAILJS_TEMPLATE: process.env.EMAILJS_TEMPLATE
+    }
+  },
+
   devtools: { enabled: false },
   compatibilityDate: '2024-08-01'
 })
