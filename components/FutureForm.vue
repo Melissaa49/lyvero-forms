@@ -126,7 +126,7 @@
 
             <button class="ff-btn-primary" :disabled="!wish" @click="next">
   Continuer
-</button>
+</button> 
 
           </div>
 
@@ -267,7 +267,17 @@
           <!-- 11 — EMAIL / FIN -->
           <div v-else-if="step === 11 && beta === 'oui'">
             <h2>Où pouvons-nous vous écrire ?</h2>
-            <input v-model.trim="email" class="ff-input" />
+            <input
+  v-model.trim="email"
+  class="ff-input"
+  type="email"
+  inputmode="email"
+  autocapitalize="none"
+  autocomplete="email"
+  autocorrect="off"
+  spellcheck="false"
+/>
+
             <button class="ff-btn-primary" :disabled="!isValidEmail" @click="submit">
               Valider
             </button>
@@ -405,6 +415,7 @@ async function submit() {
   } catch (e) {
     console.error('EmailJS error:', e)
   }
+email.value = email.value.toLowerCase().trim()
 
   emit('complete')
 }
